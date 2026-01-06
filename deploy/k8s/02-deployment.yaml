@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: talos-vault
+  namespace: default
+  labels:
+    app: talos-vault
+spec:
+  replicas: 2 # High Availability
+  selector:
+    matchLabels:
+      app: talos-vault
+  template:
+    metadata:
+      labels:
+        app: talos-vault
+    spec:
+      serviceAccountName: talos-vault-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532  # distroless nonroot user
+        runAsGroup: 65532
+        fsGroup: 65532
+      containers:
+        - name: talos-vault
+          image: talos-vault:v3 # Updated to use v3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8443
+          # HARDENING: Strict security context
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          # Environment variables if needed
+          env:
+            - name: LOG_LEVEL
+              value: "info"
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+              readOnly: true
+          # Liveness Probe (gRPC check recommended in prod, tcp for now)
+          livenessProbe:
+            tcpSocket:
+              port: 8443
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 8443
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+      volumes:
+        - name: certs
+          configMap:
+            name: talos-vault-certs
+            defaultMode: 0444
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: talos-vault
+  namespace: default
+spec:
+  selector:
+    app: talos-vault
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8443
+  type: ClusterIP
