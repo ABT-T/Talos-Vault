@@ -26,7 +26,7 @@ spec:
           image: talos-vault:v3 # Updated to use v3
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8443
+            - containerPort: 50051
           # HARDENING: Strict security context
           securityContext:
             allowPrivilegeEscalation: false
@@ -44,12 +44,12 @@ spec:
           # Liveness Probe (gRPC check recommended in prod, tcp for now)
           livenessProbe:
             tcpSocket:
-              port: 8443
+              port: 50051
             initialDelaySeconds: 5
             periodSeconds: 10
           readinessProbe:
             tcpSocket:
-              port: 8443
+              port: 50051
             initialDelaySeconds: 2
             periodSeconds: 5
           resources:
@@ -76,5 +76,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8443
+      targetPort: 50051
   type: ClusterIP
