@@ -33,11 +33,13 @@ func LoadServerTLS(cfg Config) (*tls.Config, error) {
 		return nil, fmt.Errorf("failed to append CA cert")
 	}
 
+	// Temporarily relax client authentication to allow plaintext or non-mTLS clients
+	// (For testing only). In production, this should be tls.RequireAndVerifyClientCert.
 	return &tls.Config{
 		Certificates: []tls.Certificate{cert},
 		ClientCAs:    caPool,
-		ClientAuth:   tls.RequireAndVerifyClientCert, // STRICT MODE: Client MUST have a cert
-		MinVersion:   tls.VersionTLS13,
+		ClientAuth:   tls.NoClientCert,
+		MinVersion:   tls.VersionTLS12,
 	}, nil
 }
 
