@@ -1,0 +1,13 @@
+{
+  "spiffe://cluster.local/ns/default/sa/ai-agent": {
+    "allowed_execs": [
+      "/usr/bin/python3"
+    ],
+    "allowed_domains": [
+      "api.openai.com"
+    ],
+    "allowed_methods": [
+      "POST"
+    ]
+  }
+}

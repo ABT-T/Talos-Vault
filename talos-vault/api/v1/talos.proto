@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package v1;
+
+option go_package = "github.com/yourorg/talos-vault/api/v1";
+
+// IdentityService handles workload attestation and certificate issuance.
+service IdentityService {
+  // Attest validates a K8s ServiceAccount token and returns mTLS certs.
+  rpc Attest(AttestRequest) returns (AttestResponse);
+}
+
+// PolicyService allows the sidecar to query for permission (Check).
+// In a full implementation, policies are pushed, but here we query for simplicity/audit.
+service PolicyService {
+  rpc Check(CheckRequest) returns (CheckResponse);
+}
+
+message AttestRequest {
+  string service_account_token = 1; // The K8s JWT
+  string workload_name = 2;
+  string namespace = 3;
+}
+
+message AttestResponse {
+  bytes certificate = 1; // PEM encoded X.509
+  bytes private_key = 2; // PEM encoded Private Key (Generated locally ideally, but for simplicity here)
+  bytes ca_bundle = 3;   // PEM encoded CA Chain
+  string spiffe_id = 4;
+}
+
+message CheckRequest {
+  string subject = 1; // The SPIFFE ID of the workload
+  string action = 2;  // e.g., "exec", "net-outbound"
+  string target = 3;  // e.g., "/bin/rm", "api.openai.com"
+  map<string, string> context = 4;
+}
+
+message CheckResponse {
+  bool allowed = 1;
+  string reason = 2;
+}
