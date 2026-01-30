@@ -1,0 +1,8 @@
+syntax = "proto3";
+package talos;
+
+service IdentityService {
+  rpc Check (Empty) returns (Empty);
+}
+
+message Empty {}

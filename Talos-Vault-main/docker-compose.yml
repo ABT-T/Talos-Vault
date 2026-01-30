@@ -1,0 +1,32 @@
+services:
+  # The Brain
+  controller:
+    build:
+      context: .
+      dockerfile: build/Dockerfile.controller
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./certs:/certs   # Mount certificates safely
+      - ./talos.db:/talos.db # Persist DB
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/dev/null # Suppress noise
+    networks:
+      - talos-net
+
+  # The Sidecar (Simulating a pod)
+  sidecar-1:
+    build:
+      context: .
+      dockerfile: build/Dockerfile.agent
+    depends_on:
+      - controller
+    volumes:
+      - ./certs:/certs   # Mount certificates safely
+    command: ["/agent"] # Override if needed
+    networks:
+      - talos-net
+
+networks:
+  talos-net:
+    driver: bridge
