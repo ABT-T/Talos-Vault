@@ -1,34 +1,42 @@
 syntax = "proto3";
-package talos;
-option go_package = "./proto";
 
+package admin;
+
+option go_package = "github.com/example/talos-vault/proto";
+
+// Service definition
 service AdminService {
-  rpc UpdatePolicy (UpdatePolicyRequest) returns (UpdatePolicyResponse);
-  rpc WatchPolicies (WatchRequest) returns (stream PolicyUpdate);
+  rpc GetPolicy(PolicyRequest) returns (PolicyResponse);
+  rpc ReportAudit(AuditRequest) returns (AuditResponse); // New RPC for logging
+}
+
+// Existing Policy messages
+message PolicyRequest {
+  string node_id = 1;
+  string os_version = 2;
+}
+
+message PolicyResponse {
+  repeated Policy policies = 1;
 }
 
 message Policy {
   string subject = 1;
-  string action = 2;
-  string effect = 3;
+  string resource = 2;
+  string action = 3;
+  string effect = 4;
 }
 
-message UpdatePolicyRequest {
-  string subject = 1;
-  string action = 2;
-  string effect = 3;
-}
-
-message UpdatePolicyResponse {
-  bool success = 1;
-  string error_message = 2;
-}
-
-message WatchRequest {
+// New Audit messages
+message AuditRequest {
   string node_id = 1;
-  string auth_token = 2; // Added Kubernetes ServiceAccount Token
+  string subject = 2;
+  string action = 3;
+  string effect = 4;
+  string resource = 5;
+  int64 timestamp = 6; // Unix timestamp
 }
 
-message PolicyUpdate {
-  repeated Policy policies = 1;
+message AuditResponse {
+  bool success = 1;
 }

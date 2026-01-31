@@ -1,0 +1,2 @@
+{"node_id":"agent-win-01","subject":"admin","action":"GET","resource":"/admin/dashboard","effect":"allow","timestamp":"2026-01-31T01:17:32+03:30","server_received_at":"2026-01-31T01:17:32+03:30"}
+{"node_id":"agent-win-01","subject":"stranger","action":"GET","resource":"/admin/dashboard","effect":"deny","timestamp":"2026-01-31T01:17:32+03:30","server_received_at":"2026-01-31T01:17:32+03:30"}

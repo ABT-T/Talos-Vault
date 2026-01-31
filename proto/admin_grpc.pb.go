@@ -19,16 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AdminService_UpdatePolicy_FullMethodName  = "/talos.AdminService/UpdatePolicy"
-	AdminService_WatchPolicies_FullMethodName = "/talos.AdminService/WatchPolicies"
+	AdminService_GetPolicy_FullMethodName   = "/admin.AdminService/GetPolicy"
+	AdminService_ReportAudit_FullMethodName = "/admin.AdminService/ReportAudit"
 )
 
 // AdminServiceClient is the client API for AdminService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Service definition
 type AdminServiceClient interface {
-	UpdatePolicy(ctx context.Context, in *UpdatePolicyRequest, opts ...grpc.CallOption) (*UpdatePolicyResponse, error)
-	WatchPolicies(ctx context.Context, in *WatchRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[PolicyUpdate], error)
+	GetPolicy(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*PolicyResponse, error)
+	ReportAudit(ctx context.Context, in *AuditRequest, opts ...grpc.CallOption) (*AuditResponse, error)
 }
 
 type adminServiceClient struct {
@@ -39,41 +41,34 @@ func NewAdminServiceClient(cc grpc.ClientConnInterface) AdminServiceClient {
 	return &adminServiceClient{cc}
 }
 
-func (c *adminServiceClient) UpdatePolicy(ctx context.Context, in *UpdatePolicyRequest, opts ...grpc.CallOption) (*UpdatePolicyResponse, error) {
+func (c *adminServiceClient) GetPolicy(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*PolicyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdatePolicyResponse)
-	err := c.cc.Invoke(ctx, AdminService_UpdatePolicy_FullMethodName, in, out, cOpts...)
+	out := new(PolicyResponse)
+	err := c.cc.Invoke(ctx, AdminService_GetPolicy_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *adminServiceClient) WatchPolicies(ctx context.Context, in *WatchRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[PolicyUpdate], error) {
+func (c *adminServiceClient) ReportAudit(ctx context.Context, in *AuditRequest, opts ...grpc.CallOption) (*AuditResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &AdminService_ServiceDesc.Streams[0], AdminService_WatchPolicies_FullMethodName, cOpts...)
+	out := new(AuditResponse)
+	err := c.cc.Invoke(ctx, AdminService_ReportAudit_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[WatchRequest, PolicyUpdate]{ClientStream: stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
+	return out, nil
 }
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type AdminService_WatchPoliciesClient = grpc.ServerStreamingClient[PolicyUpdate]
 
 // AdminServiceServer is the server API for AdminService service.
 // All implementations must embed UnimplementedAdminServiceServer
 // for forward compatibility.
+//
+// Service definition
 type AdminServiceServer interface {
-	UpdatePolicy(context.Context, *UpdatePolicyRequest) (*UpdatePolicyResponse, error)
-	WatchPolicies(*WatchRequest, grpc.ServerStreamingServer[PolicyUpdate]) error
+	GetPolicy(context.Context, *PolicyRequest) (*PolicyResponse, error)
+	ReportAudit(context.Context, *AuditRequest) (*AuditResponse, error)
 	mustEmbedUnimplementedAdminServiceServer()
 }
 
@@ -84,11 +79,11 @@ type AdminServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAdminServiceServer struct{}
 
-func (UnimplementedAdminServiceServer) UpdatePolicy(context.Context, *UpdatePolicyRequest) (*UpdatePolicyResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdatePolicy not implemented")
+func (UnimplementedAdminServiceServer) GetPolicy(context.Context, *PolicyRequest) (*PolicyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPolicy not implemented")
 }
-func (UnimplementedAdminServiceServer) WatchPolicies(*WatchRequest, grpc.ServerStreamingServer[PolicyUpdate]) error {
-	return status.Error(codes.Unimplemented, "method WatchPolicies not implemented")
+func (UnimplementedAdminServiceServer) ReportAudit(context.Context, *AuditRequest) (*AuditResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ReportAudit not implemented")
 }
 func (UnimplementedAdminServiceServer) mustEmbedUnimplementedAdminServiceServer() {}
 func (UnimplementedAdminServiceServer) testEmbeddedByValue()                      {}
@@ -111,53 +106,58 @@ func RegisterAdminServiceServer(s grpc.ServiceRegistrar, srv AdminServiceServer)
 	s.RegisterService(&AdminService_ServiceDesc, srv)
 }
 
-func _AdminService_UpdatePolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdatePolicyRequest)
+func _AdminService_GetPolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PolicyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AdminServiceServer).UpdatePolicy(ctx, in)
+		return srv.(AdminServiceServer).GetPolicy(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AdminService_UpdatePolicy_FullMethodName,
+		FullMethod: AdminService_GetPolicy_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).UpdatePolicy(ctx, req.(*UpdatePolicyRequest))
+		return srv.(AdminServiceServer).GetPolicy(ctx, req.(*PolicyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AdminService_WatchPolicies_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(WatchRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _AdminService_ReportAudit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuditRequest)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(AdminServiceServer).WatchPolicies(m, &grpc.GenericServerStream[WatchRequest, PolicyUpdate]{ServerStream: stream})
+	if interceptor == nil {
+		return srv.(AdminServiceServer).ReportAudit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_ReportAudit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).ReportAudit(ctx, req.(*AuditRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type AdminService_WatchPoliciesServer = grpc.ServerStreamingServer[PolicyUpdate]
 
 // AdminService_ServiceDesc is the grpc.ServiceDesc for AdminService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AdminService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "talos.AdminService",
+	ServiceName: "admin.AdminService",
 	HandlerType: (*AdminServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "UpdatePolicy",
-			Handler:    _AdminService_UpdatePolicy_Handler,
+			MethodName: "GetPolicy",
+			Handler:    _AdminService_GetPolicy_Handler,
 		},
-	},
-	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "WatchPolicies",
-			Handler:       _AdminService_WatchPolicies_Handler,
-			ServerStreams: true,
+			MethodName: "ReportAudit",
+			Handler:    _AdminService_ReportAudit_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "proto/admin.proto",
 }

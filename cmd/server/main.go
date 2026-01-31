@@ -3,85 +3,57 @@ package main
 import (
     "crypto/tls"
     "crypto/x509"
-    "flag"
-    "io/ioutil"
+    "fmt"
     "log"
     "net"
     "os"
-    "os/signal"
-    "syscall"
 
+    "github.com/example/talos-vault/internal/admin"
+    pb "github.com/example/talos-vault/proto"
     "google.golang.org/grpc"
     "google.golang.org/grpc/credentials"
-
-    "talos-vault/internal/admin"
-    pb "talos-vault/proto"
 )
 
 func main() {
-    // Flags
-    port := flag.String("port", ":50051", "gRPC server port")
-    dbPath := flag.String("db", ":memory:", "Path to SQLite DB (default: in-memory)")
-    
-    // Cert Flags
-    certFile := flag.String("cert", "certs/server.crt", "Server Cert file")
-    keyFile := flag.String("key", "certs/server.key", "Server Key file")
-    caFile := flag.String("ca", "certs/ca.crt", "CA Cert file")
-
-    flag.Parse()
-
-    // 1. Initialize Control Plane (Logic + DB + Auth)
-    // Note: CGO is disabled, so SQLite acts as in-memory or pure Go fallback if configured
-    controlPlane, err := admin.NewControlPlane(*dbPath)
-    if err != nil {
-        log.Fatalf("Failed to initialize Control Plane: %v", err)
-    }
-
-    // 2. Setup mTLS
-    // Load server's certificate and private key
-    serverCert, err := tls.LoadX509KeyPair(*certFile, *keyFile)
-    if err != nil {
-        log.Fatalf("Failed to load server certs: %v", err)
-    }
-
-    // Load CA certificate to verify agents
-    caCert, err := ioutil.ReadFile(*caFile)
-    if err != nil {
-        log.Fatalf("Failed to load CA cert: %v", err)
-    }
-    caCertPool := x509.NewCertPool()
-    caCertPool.AppendCertsFromPEM(caCert)
-
-    tlsConfig := &tls.Config{
-        Certificates: []tls.Certificate{serverCert},
-        ClientCAs:    caCertPool,
-        ClientAuth:   tls.RequireAndVerifyClientCert, // Enforce mTLS
-    }
-    creds := credentials.NewTLS(tlsConfig)
-
-    // 3. Start Listener
-    lis, err := net.Listen("tcp", *port)
+    port := ":50051"
+    lis, err := net.Listen("tcp", port)
     if err != nil {
         log.Fatalf("failed to listen: %v", err)
     }
 
-    // 4. Create gRPC Server
-    grpcServer := grpc.NewServer(grpc.Creds(creds))
+    // 1. Load the CA certificate (to verify the Agent/Client)
+    pemClientCA, err := os.ReadFile("certs/ca.crt")
+    if err != nil {
+        log.Fatalf("Failed to load CA cert: %v", err)
+    }
+
+    certPool := x509.NewCertPool()
+    if !certPool.AppendCertsFromPEM(pemClientCA) {
+        log.Fatalf("Failed to append CA cert to pool")
+    }
+
+    // 2. Load Server's certificate and private key
+    serverCert, err := tls.LoadX509KeyPair("certs/server.crt", "certs/server.key")
+    if err != nil {
+        log.Fatalf("Failed to load server certs: %v", err)
+    }
+
+    // 3. Configure mTLS
+    config := &tls.Config{
+        Certificates: []tls.Certificate{serverCert},
+        ClientAuth:   tls.RequireAndVerifyClientCert, // <--- CRITICAL: Enforce mTLS
+        ClientCAs:    certPool,                       // Trust clients signed by our CA
+    }
     
-    // Register the service
-    pb.RegisterAdminServiceServer(grpcServer, controlPlane)
+    creds := credentials.NewTLS(config)
+    s := grpc.NewServer(grpc.Creds(creds))
 
-    // Graceful Shutdown Handling
-    go func() {
-        sigCh := make(chan os.Signal, 1)
-        signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
-        <-sigCh
-        log.Println("Shutting down server...")
-        grpcServer.GracefulStop()
-    }()
+    // Register Services
+    adminServer := admin.NewServer()
+    pb.RegisterAdminServiceServer(s, adminServer)
 
-    log.Printf("Talos Control Plane running on %s (DB: %s)", *port, *dbPath)
-    if err := grpcServer.Serve(lis); err != nil {
+    fmt.Printf("[Control Plane] Server listening on %s (mTLS Enabled)\n", port)
+    if err := s.Serve(lis); err != nil {
         log.Fatalf("failed to serve: %v", err)
     }
 }

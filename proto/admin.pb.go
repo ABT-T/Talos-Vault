@@ -21,18 +21,116 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Existing Policy messages
+type PolicyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NodeId        string                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	OsVersion     string                 `protobuf:"bytes,2,opt,name=os_version,json=osVersion,proto3" json:"os_version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PolicyRequest) Reset() {
+	*x = PolicyRequest{}
+	mi := &file_proto_admin_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PolicyRequest) ProtoMessage() {}
+
+func (x *PolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_admin_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PolicyRequest.ProtoReflect.Descriptor instead.
+func (*PolicyRequest) Descriptor() ([]byte, []int) {
+	return file_proto_admin_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *PolicyRequest) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *PolicyRequest) GetOsVersion() string {
+	if x != nil {
+		return x.OsVersion
+	}
+	return ""
+}
+
+type PolicyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Policies      []*Policy              `protobuf:"bytes,1,rep,name=policies,proto3" json:"policies,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PolicyResponse) Reset() {
+	*x = PolicyResponse{}
+	mi := &file_proto_admin_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PolicyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PolicyResponse) ProtoMessage() {}
+
+func (x *PolicyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_admin_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PolicyResponse.ProtoReflect.Descriptor instead.
+func (*PolicyResponse) Descriptor() ([]byte, []int) {
+	return file_proto_admin_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *PolicyResponse) GetPolicies() []*Policy {
+	if x != nil {
+		return x.Policies
+	}
+	return nil
+}
+
 type Policy struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Subject       string                 `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
-	Action        string                 `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
-	Effect        string                 `protobuf:"bytes,3,opt,name=effect,proto3" json:"effect,omitempty"`
+	Resource      string                 `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
+	Action        string                 `protobuf:"bytes,3,opt,name=action,proto3" json:"action,omitempty"`
+	Effect        string                 `protobuf:"bytes,4,opt,name=effect,proto3" json:"effect,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Policy) Reset() {
 	*x = Policy{}
-	mi := &file_proto_admin_proto_msgTypes[0]
+	mi := &file_proto_admin_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -44,7 +142,7 @@ func (x *Policy) String() string {
 func (*Policy) ProtoMessage() {}
 
 func (x *Policy) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_admin_proto_msgTypes[0]
+	mi := &file_proto_admin_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,12 +155,19 @@ func (x *Policy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Policy.ProtoReflect.Descriptor instead.
 func (*Policy) Descriptor() ([]byte, []int) {
-	return file_proto_admin_proto_rawDescGZIP(), []int{0}
+	return file_proto_admin_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Policy) GetSubject() string {
 	if x != nil {
 		return x.Subject
+	}
+	return ""
+}
+
+func (x *Policy) GetResource() string {
+	if x != nil {
+		return x.Resource
 	}
 	return ""
 }
@@ -81,140 +186,33 @@ func (x *Policy) GetEffect() string {
 	return ""
 }
 
-type UpdatePolicyRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Subject       string                 `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
-	Action        string                 `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
-	Effect        string                 `protobuf:"bytes,3,opt,name=effect,proto3" json:"effect,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdatePolicyRequest) Reset() {
-	*x = UpdatePolicyRequest{}
-	mi := &file_proto_admin_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdatePolicyRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdatePolicyRequest) ProtoMessage() {}
-
-func (x *UpdatePolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_admin_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdatePolicyRequest.ProtoReflect.Descriptor instead.
-func (*UpdatePolicyRequest) Descriptor() ([]byte, []int) {
-	return file_proto_admin_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *UpdatePolicyRequest) GetSubject() string {
-	if x != nil {
-		return x.Subject
-	}
-	return ""
-}
-
-func (x *UpdatePolicyRequest) GetAction() string {
-	if x != nil {
-		return x.Action
-	}
-	return ""
-}
-
-func (x *UpdatePolicyRequest) GetEffect() string {
-	if x != nil {
-		return x.Effect
-	}
-	return ""
-}
-
-type UpdatePolicyResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	ErrorMessage  string                 `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdatePolicyResponse) Reset() {
-	*x = UpdatePolicyResponse{}
-	mi := &file_proto_admin_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdatePolicyResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdatePolicyResponse) ProtoMessage() {}
-
-func (x *UpdatePolicyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_admin_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdatePolicyResponse.ProtoReflect.Descriptor instead.
-func (*UpdatePolicyResponse) Descriptor() ([]byte, []int) {
-	return file_proto_admin_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *UpdatePolicyResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-func (x *UpdatePolicyResponse) GetErrorMessage() string {
-	if x != nil {
-		return x.ErrorMessage
-	}
-	return ""
-}
-
-type WatchRequest struct {
+// New Audit messages
+type AuditRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	NodeId        string                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	AuthToken     string                 `protobuf:"bytes,2,opt,name=auth_token,json=authToken,proto3" json:"auth_token,omitempty"` // Added Kubernetes ServiceAccount Token
+	Subject       string                 `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
+	Action        string                 `protobuf:"bytes,3,opt,name=action,proto3" json:"action,omitempty"`
+	Effect        string                 `protobuf:"bytes,4,opt,name=effect,proto3" json:"effect,omitempty"`
+	Resource      string                 `protobuf:"bytes,5,opt,name=resource,proto3" json:"resource,omitempty"`
+	Timestamp     int64                  `protobuf:"varint,6,opt,name=timestamp,proto3" json:"timestamp,omitempty"` // Unix timestamp
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *WatchRequest) Reset() {
-	*x = WatchRequest{}
+func (x *AuditRequest) Reset() {
+	*x = AuditRequest{}
 	mi := &file_proto_admin_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *WatchRequest) String() string {
+func (x *AuditRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*WatchRequest) ProtoMessage() {}
+func (*AuditRequest) ProtoMessage() {}
 
-func (x *WatchRequest) ProtoReflect() protoreflect.Message {
+func (x *AuditRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_admin_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -226,46 +224,74 @@ func (x *WatchRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use WatchRequest.ProtoReflect.Descriptor instead.
-func (*WatchRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use AuditRequest.ProtoReflect.Descriptor instead.
+func (*AuditRequest) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *WatchRequest) GetNodeId() string {
+func (x *AuditRequest) GetNodeId() string {
 	if x != nil {
 		return x.NodeId
 	}
 	return ""
 }
 
-func (x *WatchRequest) GetAuthToken() string {
+func (x *AuditRequest) GetSubject() string {
 	if x != nil {
-		return x.AuthToken
+		return x.Subject
 	}
 	return ""
 }
 
-type PolicyUpdate struct {
+func (x *AuditRequest) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *AuditRequest) GetEffect() string {
+	if x != nil {
+		return x.Effect
+	}
+	return ""
+}
+
+func (x *AuditRequest) GetResource() string {
+	if x != nil {
+		return x.Resource
+	}
+	return ""
+}
+
+func (x *AuditRequest) GetTimestamp() int64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
+type AuditResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Policies      []*Policy              `protobuf:"bytes,1,rep,name=policies,proto3" json:"policies,omitempty"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PolicyUpdate) Reset() {
-	*x = PolicyUpdate{}
+func (x *AuditResponse) Reset() {
+	*x = AuditResponse{}
 	mi := &file_proto_admin_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PolicyUpdate) String() string {
+func (x *AuditResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PolicyUpdate) ProtoMessage() {}
+func (*AuditResponse) ProtoMessage() {}
 
-func (x *PolicyUpdate) ProtoReflect() protoreflect.Message {
+func (x *AuditResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_admin_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -277,43 +303,46 @@ func (x *PolicyUpdate) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PolicyUpdate.ProtoReflect.Descriptor instead.
-func (*PolicyUpdate) Descriptor() ([]byte, []int) {
+// Deprecated: Use AuditResponse.ProtoReflect.Descriptor instead.
+func (*AuditResponse) Descriptor() ([]byte, []int) {
 	return file_proto_admin_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *PolicyUpdate) GetPolicies() []*Policy {
+func (x *AuditResponse) GetSuccess() bool {
 	if x != nil {
-		return x.Policies
+		return x.Success
 	}
-	return nil
+	return false
 }
 
 var File_proto_admin_proto protoreflect.FileDescriptor
 
 const file_proto_admin_proto_rawDesc = "" +
 	"\n" +
-	"\x11proto/admin.proto\x12\x05talos\"R\n" +
-	"\x06Policy\x12\x18\n" +
-	"\asubject\x18\x01 \x01(\tR\asubject\x12\x16\n" +
-	"\x06action\x18\x02 \x01(\tR\x06action\x12\x16\n" +
-	"\x06effect\x18\x03 \x01(\tR\x06effect\"_\n" +
-	"\x13UpdatePolicyRequest\x12\x18\n" +
-	"\asubject\x18\x01 \x01(\tR\asubject\x12\x16\n" +
-	"\x06action\x18\x02 \x01(\tR\x06action\x12\x16\n" +
-	"\x06effect\x18\x03 \x01(\tR\x06effect\"U\n" +
-	"\x14UpdatePolicyResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12#\n" +
-	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\"F\n" +
-	"\fWatchRequest\x12\x17\n" +
+	"\x11proto/admin.proto\x12\x05admin\"G\n" +
+	"\rPolicyRequest\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1d\n" +
 	"\n" +
-	"auth_token\x18\x02 \x01(\tR\tauthToken\"9\n" +
-	"\fPolicyUpdate\x12)\n" +
-	"\bpolicies\x18\x01 \x03(\v2\r.talos.PolicyR\bpolicies2\x94\x01\n" +
-	"\fAdminService\x12G\n" +
-	"\fUpdatePolicy\x12\x1a.talos.UpdatePolicyRequest\x1a\x1b.talos.UpdatePolicyResponse\x12;\n" +
-	"\rWatchPolicies\x12\x13.talos.WatchRequest\x1a\x13.talos.PolicyUpdate0\x01B\tZ\a./protob\x06proto3"
+	"os_version\x18\x02 \x01(\tR\tosVersion\";\n" +
+	"\x0ePolicyResponse\x12)\n" +
+	"\bpolicies\x18\x01 \x03(\v2\r.admin.PolicyR\bpolicies\"n\n" +
+	"\x06Policy\x12\x18\n" +
+	"\asubject\x18\x01 \x01(\tR\asubject\x12\x1a\n" +
+	"\bresource\x18\x02 \x01(\tR\bresource\x12\x16\n" +
+	"\x06action\x18\x03 \x01(\tR\x06action\x12\x16\n" +
+	"\x06effect\x18\x04 \x01(\tR\x06effect\"\xab\x01\n" +
+	"\fAuditRequest\x12\x17\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x18\n" +
+	"\asubject\x18\x02 \x01(\tR\asubject\x12\x16\n" +
+	"\x06action\x18\x03 \x01(\tR\x06action\x12\x16\n" +
+	"\x06effect\x18\x04 \x01(\tR\x06effect\x12\x1a\n" +
+	"\bresource\x18\x05 \x01(\tR\bresource\x12\x1c\n" +
+	"\ttimestamp\x18\x06 \x01(\x03R\ttimestamp\")\n" +
+	"\rAuditResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess2\x82\x01\n" +
+	"\fAdminService\x128\n" +
+	"\tGetPolicy\x12\x14.admin.PolicyRequest\x1a\x15.admin.PolicyResponse\x128\n" +
+	"\vReportAudit\x12\x13.admin.AuditRequest\x1a\x14.admin.AuditResponseB&Z$github.com/example/talos-vault/protob\x06proto3"
 
 var (
 	file_proto_admin_proto_rawDescOnce sync.Once
@@ -329,18 +358,18 @@ func file_proto_admin_proto_rawDescGZIP() []byte {
 
 var file_proto_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_proto_admin_proto_goTypes = []any{
-	(*Policy)(nil),               // 0: talos.Policy
-	(*UpdatePolicyRequest)(nil),  // 1: talos.UpdatePolicyRequest
-	(*UpdatePolicyResponse)(nil), // 2: talos.UpdatePolicyResponse
-	(*WatchRequest)(nil),         // 3: talos.WatchRequest
-	(*PolicyUpdate)(nil),         // 4: talos.PolicyUpdate
+	(*PolicyRequest)(nil),  // 0: admin.PolicyRequest
+	(*PolicyResponse)(nil), // 1: admin.PolicyResponse
+	(*Policy)(nil),         // 2: admin.Policy
+	(*AuditRequest)(nil),   // 3: admin.AuditRequest
+	(*AuditResponse)(nil),  // 4: admin.AuditResponse
 }
 var file_proto_admin_proto_depIdxs = []int32{
-	0, // 0: talos.PolicyUpdate.policies:type_name -> talos.Policy
-	1, // 1: talos.AdminService.UpdatePolicy:input_type -> talos.UpdatePolicyRequest
-	3, // 2: talos.AdminService.WatchPolicies:input_type -> talos.WatchRequest
-	2, // 3: talos.AdminService.UpdatePolicy:output_type -> talos.UpdatePolicyResponse
-	4, // 4: talos.AdminService.WatchPolicies:output_type -> talos.PolicyUpdate
+	2, // 0: admin.PolicyResponse.policies:type_name -> admin.Policy
+	0, // 1: admin.AdminService.GetPolicy:input_type -> admin.PolicyRequest
+	3, // 2: admin.AdminService.ReportAudit:input_type -> admin.AuditRequest
+	1, // 3: admin.AdminService.GetPolicy:output_type -> admin.PolicyResponse
+	4, // 4: admin.AdminService.ReportAudit:output_type -> admin.AuditResponse
 	3, // [3:5] is the sub-list for method output_type
 	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
