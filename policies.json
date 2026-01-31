@@ -1,0 +1,12 @@
+[
+  {
+    "subject": "user:bob",
+    "action": "delete-db",
+    "effect": "deny"
+  },
+  {
+    "subject": "user:david",
+    "action": "read",
+    "effect": "allow"
+  }
+]
