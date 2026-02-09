@@ -1,0 +1,19 @@
+# Binaries
+/bin/
+sidecar
+controller
+main
+
+# Certificates & Keys (Security First!)
+*.pem
+*.key
+*.crt
+
+# IDE & System
+.vscode/
+.idea/
+.DS_Store
+
+# Go specific
+vendor/
+go.work
