@@ -1,78 +1,53 @@
-﻿# === Go / Build artifacts ===
-bin/
-obj/
+﻿# Go-specific
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
-vendor/
+/bin/
+/pkg/
+/vendor/
 
-# === Go workspaces and temp files ===
-go.work
-go.work.sum
-*.go~
-*.swp
-*.swo
-
-# === Certificates and secrets (CRITICAL - NEVER COMMIT) ===
-certs/*.key
-certs/*.pem
-certs/*.csr
-certs/*.srl
-certs/*.p12
-certs/*.pfx
-*.private
-*.secret
+# Secrets and certs
 *.key
 *.pem
 *.crt
-*.cer
+*.cert
+*.pfx
+secrets/
+certs/
 
-# === Database files (local only) ===
-*.db
-talos.db
-*.sqlite
-*.sqlite3
-*.sqlite-wal
-*.sqlite-shm
-
-# === Logs and temp files ===
+# Logs and temp files
 *.log
-*.tmp
-*.temp
-temp/
 tmp/
-
-# === IDE and editor files ===
-.vscode/
-.idea/
-*.code-workspace
-*.sublime-project
-*.sublime-workspace
+*.tmp
 *.swp
-*.swo
 .DS_Store
-Thumbs.db
 
-# === Docker and container artifacts ===
-docker-compose.override.yml
-*.dockerignore
-Dockerfile.*
+# Build artifacts
 build/
 dist/
-
-# === Testing and coverage ===
-coverage.*
-*.coverprofile
 *.out
-testdata/
+*.test
 
-# === Dependency caches ===
-go.sum.bak
-go.mod.bak
+# Dependencies (use go mod)
+go.sum  # Optionally ignore if you want, but better to commit for reproducibility
 
-# === Miscellaneous ===
-*.bak
-*.backup
-*.old
+# Kubernetes and Docker
+*.yaml~  # Backups
+k8s/
+.dockerignore
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+
+# Databases
+*.db
+*.sqlite
+data/
+
+# Environment files
+.env
+*.env.*
