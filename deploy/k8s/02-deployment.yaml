@@ -6,7 +6,7 @@ metadata:
   labels:
     app: talos-vault
 spec:
-  replicas: 2 # High Availability
+  replicas: 2
   selector:
     matchLabels:
       app: talos-vault
@@ -18,30 +18,36 @@ spec:
       serviceAccountName: talos-vault-sa
       securityContext:
         runAsNonRoot: true
-        runAsUser: 65532  # distroless nonroot user
+        runAsUser: 65532
         runAsGroup: 65532
         fsGroup: 65532
       containers:
         - name: talos-vault
-          image: talos-vault:v3 # Updated to use v3
+          image: talos-vault:v3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 50051
-          # HARDENING: Strict security context
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
-          # Environment variables if needed
           env:
             - name: LOG_LEVEL
               value: "info"
+            # فعال‌سازی اعتبارسنجی SPIFFE (در صورت نیاز)
+            - name: ENABLE_SPIFFE_VALIDATION
+              value: "true"
+            # مسیر فایل Audit Log
+            - name: AUDIT_LOG_PATH
+              value: "/var/log/talos-vault/audit.log"
           volumeMounts:
             - name: certs
               mountPath: /certs
               readOnly: true
-          # Liveness Probe (gRPC check recommended in prod, tcp for now)
+            - name: audit-logs
+              mountPath: /var/log/talos-vault
+              readOnly: false
           livenessProbe:
             tcpSocket:
               port: 50051
@@ -61,9 +67,11 @@ spec:
               memory: "256Mi"
       volumes:
         - name: certs
-          configMap:
-            name: talos-vault-certs
-            defaultMode: 0444
+          secret:
+            secretName: talos-vault-server-certs   # ← تغییر اصلی
+            defaultMode: 0400
+        - name: audit-logs
+          emptyDir: {}   # برای ذخیره موقت لاگ‌ها (در محیط تولید از hostPath یا PVC استفاده کنید)
 ---
 apiVersion: v1
 kind: Service
