@@ -4,72 +4,79 @@ package talos;
 
 option go_package = "./proto";
 
-// The Admin Service defines the Control Plane operations
+// The AdminService defines the Control Plane operations.
 service AdminService {
-  // UpdatePolicy allows admins to push new rules (CRUD)
+  // UpdatePolicy handles Create/Update/Delete of policies.
+  // Uses optimistic locking via versioning.
   rpc UpdatePolicy (UpdatePolicyRequest) returns (UpdatePolicyResponse);
 
-  // WatchPolicies is a server-side streaming RPC.
-  // Sidecars connect and keep the stream open to receive real-time updates.
+  // WatchPolicies streams policy updates to connected agents.
+  // Identity is strictly derived from the connection context (mTLS).
   rpc WatchPolicies (WatchRequest) returns (stream PolicyUpdate);
 
-  // GetPolicy allows agents to fetch current policies (for fail-safe caching)
+  // GetPolicy returns the active policies for the authenticated agent.
   rpc GetPolicy (GetPolicyRequest) returns (PolicyResponse);
 
-  // ReportAudit allows agents to send audit logs to the control plane
+  // ReportAudit allows agents to offload decision logs.
   rpc ReportAudit (AuditRequest) returns (AuditResponse);
 }
 
 // Data structures
+
 message Policy {
-  string subject = 1;  // e.g., "user:123" or "service:payment"
-  string resource = 2; // e.g., "/api/secrets"
-  string action = 3;   // e.g., "read", "write"
-  string effect = 4;   // "allow" or "deny"
+  string id = 1;       // Unique UUID for the policy
+  string subject = 2;  // e.g., "spiffe://domain/ns/default/sa/frontend"
+  string resource = 3; // e.g., "/api/secrets"
+  string action = 4;   // e.g., "read", "write"
+  string effect = 5;   // "allow" or "deny"
+  string version = 6;  // Opaque version string (ETag) for concurrency control
 }
 
-// Request to add/update a policy
 message UpdatePolicyRequest {
-  string subject = 1;
-  string action = 2;
-  string effect = 3;
+  Policy policy = 1;
+  
+  // If set, the update only succeeds if the current server version matches this.
+  string expected_version = 2; 
+
+  // If true, the policy identified by policy.id will be deleted.
+  bool is_delete = 3;
 }
 
 message UpdatePolicyResponse {
   bool success = 1;
-  string error_message = 2;
+  string new_version = 2; // The new version hash after update
+  string error_message = 3;
 }
 
-// Sidecar identification
 message WatchRequest {
-  string node_id = 1; // Unique ID of the sidecar (e.g., Pod Name)
+  // Identity is extracted from mTLS/Auth context. 
+  // No node_id here to prevent spoofing.
+  string agent_version = 1; // Informational only
 }
 
-// The payload sent down the stream
 message PolicyUpdate {
-  // Sends the full snapshot for now (MVP). 
-  // Future optimization: Send incremental deltas.
   repeated Policy policies = 1;
+  int64 generated_at = 2; // Server-side timestamp
 }
 
-// GetPolicy request and response
 message GetPolicyRequest {
-  string agent_id = 1; // Unique ID of the requesting agent
+  // Empty: Server determines the caller identity and filters policies accordingly.
 }
 
 message PolicyResponse {
   repeated Policy policies = 1;
 }
 
-// Audit logging
 message AuditRequest {
-  string timestamp = 1;
-  string principal = 2;
-  string resource = 3;
-  string action = 4;
-  string decision = 5;
+  // Client-reported timestamp (informational).
+  // Server MUST use its own reception time for ordering.
+  int64 client_timestamp = 1; 
+  string resource = 2;
+  string action = 3;
+  string decision = 4; // "allow" or "deny"
+  // Subject is omitted; server extracts it from context.
 }
 
 message AuditResponse {
-  bool success = 1;
+  bool received = 1;
 }
